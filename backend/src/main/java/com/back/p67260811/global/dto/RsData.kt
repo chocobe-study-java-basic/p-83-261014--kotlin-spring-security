@@ -1,26 +1,25 @@
-package com.back.p67260811.global.dto;
+package com.back.p67260811.global.dto
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import com.fasterxml.jackson.annotation.JsonIgnore
 
-@AllArgsConstructor
-@Getter
-public class RsData<T> {
+class RsData<T>(
+    private val resultCode: String,
+    private val msg: String,
+    private val data: T? = null
+) {
+    //    private Object data; 이렇게 해도 되지만 나중에 꺼내 쓸 때 불편
+//    private val data: T? = null // 제너릭을 사용하면 RsData 를 사용하는 시점에 T를 결정할 수 있음
 
-    private String resultCode;
-    private String msg;
-//    private Object data; 이렇게 해도 되지만 나중에 꺼내 쓸 때 불편
-    private T data; // 제너릭을 사용하면 RsData 를 사용하는 시점에 T를 결정할 수 있음
+    constructor(resultCode: String, msg: String) : this(resultCode, msg, null)
 
-    public RsData(String resultCode, String msg) {
-        this.resultCode = resultCode;
-        this.msg = msg;
-        this.data = null;
-    }
+    @get:JsonIgnore
+    val statusCode: Int
+        get() = resultCode
+            .split("-".toRegex())
+            .dropLastWhile { it.isEmpty() }
+            .toTypedArray()[0]
+                .toInt() // "201-1"
 
-    @JsonIgnore
-    public int getStatusCode() {
-        return Integer.parseInt(resultCode.split("-")[0]); // "201-1"
-    }
+    fun getResultCode(): String = resultCode
+    fun getMsg(): String = msg
 }
