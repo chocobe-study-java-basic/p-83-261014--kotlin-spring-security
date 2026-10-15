@@ -4,7 +4,7 @@ import com.back.p67260811.domain.member.entity.Member
 import java.time.LocalDateTime
 
 @JvmRecord
-data class MemberDto(
+data class MemberDto private constructor(
     val id: Int,
     val createDate: LocalDateTime,
     val modifyDate: LocalDateTime,
