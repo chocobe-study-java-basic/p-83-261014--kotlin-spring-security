@@ -1,28 +1,19 @@
-package com.back.p67260811.global.exception;
+package com.back.p67260811.global.exception
 
-import com.back.p67260811.global.dto.RsData;
+import com.back.p67260811.global.dto.RsData
 
-public class ServiceException extends RuntimeException {
+class ServiceException(
+    val resultCode: String,
+    val msg: String
+) : RuntimeException(msg) {
 
-    private RsData rsData;
+    val rsData: RsData<*>
 
-    public ServiceException(String resultCode, String msg) {
-        super(msg);
-        this.rsData = new RsData(
-                resultCode,
-                msg
-        );
-    }
-
-    public String getResultCode() {
-        return rsData.getResultCode();
-    }
-
-    public String getMsg() {
-        return rsData.getMsg();
-    }
-
-    public RsData getRsData() {
-        return rsData;
+    init {
+        this.rsData = RsData<Void>(
+            resultCode,
+            msg,
+            null
+        )
     }
 }
