@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -48,12 +47,12 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private void authenticate(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if(!request.getRequestURI().startsWith("/api/")) {
+        if (!request.getRequestURI().startsWith("/api/")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        if(List.of("/api/v1/members/join", "/api/v1/members/login").contains(request.getRequestURI())) {
+        if (List.of("/api/v1/members/join", "/api/v1/members/login").contains(request.getRequestURI())) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -83,7 +82,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         boolean isApiKeyExists = !apiKey.isBlank();
         boolean isAccessTokenValid = false;
 
-        if(!isApiKeyExists && !isAccessTokenExists) {
+        if (!isApiKeyExists && !isAccessTokenExists) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -95,7 +94,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             Map<String, Object> payload = memberService.payloadOrNull(accessToken);
 
             if (payload != null) {
-                int id = (int)payload.get("id");
+                int id = (int) payload.get("id");
                 String username = (String) payload.get("username");
                 String nickname = (String) payload.get("nickname");
 
@@ -118,10 +117,10 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 
         UserDetails user = new SecurityUser(
                 member.getUsername(),
-                "",
+                member.getNickname(),
                 member.getAuthorities(),
                 member.getId(),
-                member.getNickname()
+                ""
         );
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
