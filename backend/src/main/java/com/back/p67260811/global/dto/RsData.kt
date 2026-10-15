@@ -3,12 +3,13 @@ package com.back.p67260811.global.dto
 import com.fasterxml.jackson.annotation.JsonIgnore
 
 class RsData<T>(
-    private val resultCode: String,
-    private val msg: String,
-    private val data: T? = null
+    val resultCode: String,
+    val msg: String,
+    val data: T? = null
 ) {
-    //    private Object data; 이렇게 해도 되지만 나중에 꺼내 쓸 때 불편
-//    private val data: T? = null // 제너릭을 사용하면 RsData 를 사용하는 시점에 T를 결정할 수 있음
+    // private Object data; 이렇게 해도 되지만 나중에 꺼내 쓸 때 불편
+    // private val data: T? = null
+    // 제너릭을 사용하면 RsData 를 사용하는 시점에 T를 결정할 수 있음
 
     constructor(resultCode: String, msg: String) : this(resultCode, msg, null)
 
@@ -19,8 +20,4 @@ class RsData<T>(
             .dropLastWhile { it.isEmpty() }
             .toTypedArray()[0]
                 .toInt() // "201-1"
-
-    fun getResultCode(): String = resultCode
-    fun getMsg(): String = msg
-    fun getData(): T? = data
 }
