@@ -1,41 +1,38 @@
-package com.back.p67260811.domain.member.service;
+package com.back.p67260811.domain.member.service
 
-import com.back.p67260811.domain.member.entity.Member;
-import com.back.p67260811.standard.Ut;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import java.util.Map;
+import com.back.p67260811.domain.member.entity.Member
+import com.back.p67260811.standard.Ut
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Service
+import java.util.Map
 
 @Service
-public class AuthTokenService {
+class AuthTokenService(
+    @Value("\${custom.jwt.secret-key}")
+    private val secretPattern: String,
 
-    @Value("${custom.jwt.secret-key}")
-    private String secretPattern;
+    @Value("\${custom.jwt.expireMills}")
+    private val expireMills: Long
 
-    @Value("${custom.jwt.expireMills}")
-    private long expireMills;
+) {
 
-    String genAccessToken(Member member) {
-
+    fun genAccessToken(member: Member): String {
         return Ut.jwt.toString(
-                secretPattern,
-                expireMills,
-                Map.of("id", member.getId(), "username", member.getUsername(), "nickname", member.getNickname())
-        );
+            secretPattern,
+            expireMills,
+            Map.of<String, Any>("id", member.id, "username", member.username, "nickname", member.nickname)
+        )
     }
 
-    Map<String, Object> payloadOrNull(String jwt) {
-        Map<String, Object> payload = Ut.jwt.payloadOrNull(jwt, secretPattern);
+    fun payloadOrNull(jwt: String): MutableMap<String, Any>? {
+        val payload = Ut.jwt.payloadOrNull(jwt, secretPattern)
 
-        if(payload == null) {
-            return null;
+        return payload?.let {
+            val id = payload.get("id") as Int
+            val username = payload.get("username") as String
+            val nickname = payload.get("nickname") as String
+            Map.of<String, Any>("id", id, "username", username, "nickname", nickname)
         }
 
-        int id = (int)payload.get("id");
-        String username = (String)payload.get("username");
-        String nickname = (String)payload.get("nickname");
-
-        return Map.of("id", id, "username", username, "nickname", nickname);
     }
 }
