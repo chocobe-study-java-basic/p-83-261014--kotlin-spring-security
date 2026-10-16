@@ -1,82 +1,64 @@
-package com.back.p67260811.domain.post.post.entity;
+package com.back.p67260811.domain.post.post.entity
 
-import com.back.p67260811.domain.member.entity.Member;
-import com.back.p67260811.domain.post.comment.entity.PostComment;
-import com.back.p67260811.global.exception.ServiceException;
-import com.back.p67260811.global.jpa.entity.BaseEntity;
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.back.p67260811.domain.member.entity.Member
+import com.back.p67260811.domain.post.comment.entity.PostComment
+import com.back.p67260811.global.exception.ServiceException
+import com.back.p67260811.global.jpa.entity.BaseEntity
+import jakarta.persistence.*
 
-import java.util.ArrayList;
-import java.util.List;
-
-@NoArgsConstructor
-@Getter
 @Entity
-public class Post extends BaseEntity {
-    private String title;
-    private String content;
+class Post(
+    @field:ManyToOne(fetch = FetchType.LAZY)
+    var author: Member,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Member author; // 외래키인 id만 사용
+    var title: String,
 
-    @OneToMany(mappedBy = "post", cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
-    List<PostComment> comments = new ArrayList<>();
+    var content: String,
+) : BaseEntity() {
 
-    public Post(Member author, String title, String content) {
-        this.author = author;
-        this.title = title;
-        this.content = content;
+    @field:OneToMany(
+        mappedBy = "post",
+        cascade = [CascadeType.PERSIST, CascadeType.REMOVE],
+        orphanRemoval = true
+    )
+    var comments: MutableList<PostComment> = mutableListOf()
+
+    fun findCommentById(id: Int): PostComment =
+        comments.find { it.id == id }
+            ?: throw IllegalArgumentException("해당 댓글이 존재하지 않습니다")
+
+    fun addComment(content: String): PostComment =
+        PostComment(content, this).also {
+            comments.add(it)
+        }
+
+    fun removeComment(id: Int) {
+        comments.removeAll { it.id == id }
     }
 
-    public PostComment findCommentById(int id) {
-        return comments
-                .stream()
-                .filter(c -> c.getId() == id)
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다"));
+    fun modifyComment(id: Int, content: String?): PostComment =
+        findCommentById(id).apply {
+            modify(content)
+        }
+
+    fun update(title: String, content: String) {
+        this.title = title
+        this.content = content
     }
 
-    public PostComment addComment(String content) {
-        PostComment postComment = new PostComment(content, this);
-        this.comments.add(postComment);
-
-        return postComment;
-    }
-
-    public void removeComment(int id) {
-        comments.removeIf(comment -> comment.getId() == id);
-    }
-
-    public PostComment modifyComment(int id, String content) {
-        PostComment postComment = comments
-                .stream()
-                .filter(comment -> comment.getId() == id)
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("해당 댓글이 존재하지 않습니다"));
-
-        postComment.modify(content);
-
-        return postComment;
-    }
-
-    public void update(String title, String content) {
-
-        // 비즈니스 규칙
-        this.title = title;
-        this.content = content;
-    }
-
-    public void checkActorModify(Member actor) {
-        if(!(this.author.getId() == actor.getId())) {
-            throw new ServiceException("403-1", "수정 권한이 없습니다.");
+    fun checkActorModify(actor: Member) {
+        if (author.id != actor.id) {
+            throw ServiceException("403-1", "수정 권한이 없습니다.")
         }
     }
 
-    public void checkActorDelete(Member actor) {
-        if(!(this.author.getId() == actor.getId())) {
-            throw new ServiceException("403-2", "삭제 권한이 없습니다.");
+    fun checkActorDelete(actor: Member) {
+        if (author.id != actor.id) {
+            throw ServiceException("403-2", "삭제 권한이 없습니다.")
         }
     }
+
+//    fun getComments(): List<PostComment> = comments.toList()
+//    fun getTitle(): String = title
+//    fun getContent(): String = content
 }
