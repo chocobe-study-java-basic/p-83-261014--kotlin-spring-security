@@ -5,15 +5,15 @@ import java.time.LocalDateTime
 
 @JvmRecord
 data class MemberDto private constructor(
-    val id: Int,
+    val id: Int?,
     val createDate: LocalDateTime,
     val modifyDate: LocalDateTime,
-    val name: String
+    val name: String?
 ) {
     constructor(member: Member) : this(
         member.id,
         member.createDate,
         member.modifyDate,
-        member.getNickname()
+        member.nickname
     )
 }
