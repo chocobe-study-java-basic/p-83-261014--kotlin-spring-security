@@ -4,8 +4,10 @@ import com.back.p67260811.domain.member.entity.Member
 import com.back.p67260811.domain.post.comment.entity.PostComment
 import com.back.p67260811.domain.post.post.entity.Post
 import com.back.p67260811.domain.post.post.repository.PostRepository
+import org.springframework.stereotype.Service
 import java.util.*
 
+@Service
 class PostService(
     private val postRepository: PostRepository
 ) {
